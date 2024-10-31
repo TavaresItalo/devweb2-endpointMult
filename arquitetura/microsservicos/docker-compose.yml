@@ -12,6 +12,9 @@ services:
 
     sub:
         build: sub
+        
+    mult:
+        build: mult
 
     nginx:
         container_name: nginx
@@ -23,3 +26,4 @@ services:
            - calc
            - soma
            - sub
+           - mult
