@@ -1,13 +1,19 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+from flask import Flask
+from flask import request
+app = Flask(__name__)
 
-app = FastAPI()
+@app.route("/mult", methods=["GET"])
+def soma():
+    res = {}
+    op1 = request.args.get('op1')
+    op2 = request.args.get('op2')
 
-class Operands(BaseModel) :
-    op1 : float
-    op2 : float
+    if not op1 or not op2:
+        res['resultado'] = "op1 ou op2 não informado"
+        return res, 400
 
-@app.post("/mult")
-async def multiply(operands: Operands) :
-    result = operands.op1 * operands.op2
-    return {"result" : result}
+    res['resultado'] = float(op1) * float(op2)
+    return res, 200
+
+if __name__ == '__main__':
+    app.run('0.0.0.0', debug=True)
