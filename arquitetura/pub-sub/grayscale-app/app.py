@@ -1,5 +1,5 @@
 from PIL import Image, ImageOps
-from confluent_kafka import Consumer, KafkaError
+from confluent_kafka import Consumer, KafkaError, KafkaProducer
 import json
 import os
 from time import sleep
@@ -7,6 +7,7 @@ import logging
 OUT_FOLDER = '/processed/grayscale/'
 NEW = '_grayscale'
 IN_FOLDER = "/appdata/static/uploads/"
+TOPIC = 'notificacao'
 
 def create_grayscale(path_file):
     pathname, filename = os.path.split(path_file)
@@ -20,6 +21,19 @@ def create_grayscale(path_file):
 
     name, ext = os.path.splitext(filename)
     gray_image.save(output_folder + name + NEW + ext)
+
+def send_notification(path_file, email) :
+    operation = "grayscale"
+    producer = KafkaProducer(bootstrap_servers=['kafka1:19091', 'kafka2:19092', 'kafka3:19093' ], value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+
+    message = {
+        'file_name': path_file,
+        'operation': operation,
+        'email' : email 
+    }
+
+    producer.send('notificacao', message)
+    producer.flush() 
 
 #sleep(30)
 ### Consumer
@@ -43,9 +57,11 @@ try:
         elif not msg.error():
             data = json.loads(msg.value())
             filename = data['new_file']
+            contact = data['email']
             logging.warning(f"READING {filename}")
             create_grayscale(IN_FOLDER + filename)
             logging.warning (f"ENDING {filename}")
+            send_notification(filename)
         elif msg.error().code() == KafkaError._PARTITION_EOF:
             logging.warning('End of partition reached {0}/{1}'
                   .format(msg.topic(), msg.partition()))

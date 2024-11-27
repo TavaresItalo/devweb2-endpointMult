@@ -32,10 +32,11 @@ def delivery_report(errmsg, data):
         data.key(), data.topic(), data.partition(), data.offset()))
 
 
-def get_json_str(timestamp, filename):
+def get_json_str(timestamp, filename, email):
     d = {
         'timestamp': timestamp,
         'new_file': filename,
+		'email' : email
     }
     return json.dumps(d)
 
@@ -74,9 +75,9 @@ def display_image(filename):
 	#print('display_image filename: ' + filename)
 	return redirect(url_for('static', filename='uploads/' + filename), code=301)
 
-def publish(topic, filename):
+def publish(topic, filename, email):
     p = Producer({'bootstrap.servers': 'kafka1:19091,kafka2:19092,kafka3:19093'})
-    p.produce(topic, key=str(uuid4()), value=get_json_str(time.time(), filename), on_delivery=delivery_report)
+    p.produce(topic, key=str(uuid4()), value=get_json_str(time.time(), filename, email), on_delivery=delivery_report)
     p.flush()
 
 if __name__ == "__main__":

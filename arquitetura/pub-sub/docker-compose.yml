@@ -26,6 +26,16 @@ services:
       - ./appdata:/appdata
     depends_on:
       - kafka1
+  
+  notification:
+    build: notification-app
+    container_name: notification
+    ports:
+      - 5000:5000
+    volumes:
+      - ./appdata:/appdata
+    depends_on:
+      - kafka1
 
   zookeeper:
     image: zookeeper:3.4.9
