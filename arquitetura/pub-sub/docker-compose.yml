@@ -30,8 +30,6 @@ services:
   notification:
     build: notification-app
     container_name: notification
-    ports:
-      - 5000:5000
     volumes:
       - ./appdata:/appdata
     depends_on:
